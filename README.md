@@ -1,43 +1,66 @@
 # MD Viewer
 
-A high-performance, GitLab-style Markdown Viewer for Visual Studio Code.
+A fast, polished Markdown preview extension for Visual Studio Code.
 
-MD Viewer provides a seamless way to preview your Markdown documents right beside your code. It's packed with modern features, fully optimized for performance, and designed to match the look and feel of major platforms like GitLab.
+MD Viewer renders Markdown files directly in a side-by-side Webview, with support for advanced content such as math formulas, Mermaid diagrams, syntax highlighting, and smooth anchor navigation.
 
 ## Features
 
-- **Toggle View Interface:** A convenient `</>` toggle button sits right in your editor title bar. Click it to seamlessly switch between raw Markdown and the rendered HTML preview.
-- **Live Preview:** Edits you make to the markdown document update the preview in real-time.
-- **Mathematical Formulas (KaTeX):** Supports inline math (`$x^2$`) and block equations (`$$x^2$$`) rendered identically to GitLab/Academic standards, complete with proper display alignment.
-- **Mermaid Diagrams:** Client-side rendering of flowchart, sequence, and gantt diagrams.
-- **Code Syntax Highlighting:** Powered by Highlight.js to give your code blocks the VS Code theme treatment.
-- **Smart Relative Linking:** Clicking a relative link (like `[Guide](guide.md)`) from within the preview automatically opens that file inside your VS Code workspace.
-- **Anchor Navigation:** Smooth-scrolling table-of-contents support. Heading links (`#my-heading`) smoothly scroll to the exact spot in the preview.
-- **Task Lists & Emojis:** Native rendering for `- [x]` checkboxes and `:smile:` shortcodes.
-- **Local Images:** Fully supports relative image paths (`./images/screenshot.png`), complete with URL-decoding capabilities for files with spaces.
+- **Markdown preview toggle**: Open or close the rendered view from the editor title bar.
+- **Multi-file previews**: Keep multiple Markdown previews open at once, each matched to its source file.
+- **KaTeX math support**: Render inline math (`$a^2$`) and display math (`$$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$`).
+- **Mermaid diagrams**: Render flowcharts, sequence diagrams, and other Mermaid graph types within the preview.
+- **Syntax highlighting**: Code blocks are styled using Highlight.js for better readability.
+- **Anchor scrolling**: Click internal heading links and jump smoothly to the correct section.
+- **Relative link navigation**: Clicking a local file link opens that file in VS Code.
+- **Local image support**: Handles relative image paths and URL-encoded filenames.
+- **Task lists and emojis**: Supports GitHub-style task lists and emoji syntax.
 
-## Performance Optimized
+## Installation
 
-MD Viewer is designed from the ground up for minimal Extension Host overhead:
-- **Client-Side Heavy Lifting:** Mermaid diagrams and KaTeX mathematics are strictly processed client-side inside the Webview DOM, avoiding blocking operations in Node.js.
-- **Render Caching:** Markdown HTML structures and file-system image validations are heavily cached. The extension only re-calculates elements when the file is genuinely modified.
-- **Incremental Increments:** Webviews aren't lazily recreated on changes. We utilize high-speed `postMessage` architecture to seamlessly swap the `innerHTML` live.
-- **Micro-Bundle:** Compiled under Webpack Production configurations, ensuring small footprints and fast load times.
+1. Clone this repository:
 
-## How to Use
+```bash
+git clone https://github.com/allwin-antony/md_viewer_vs.git
+cd md_viewer_vs
+```
 
-1. Open any `.md` file in Visual Studio Code.
-2. Look at the top-right corner of your editor tab (the Editor Title menu).
-3. Click the `</>` (Toggle MD/HTML View) button.
-4. The preview will open. You can split it to the side to see live updates as you type!
-
-## Development
-
-To build and compile the extension locally:
+2. Install dependencies:
 
 ```bash
 npm install
+```
+
+3. Build the extension:
+
+```bash
 npm run compile
 ```
 
-Press `F5` in VS Code to launch the Extension Development Host and test your changes live.
+## Running locally
+
+Open the folder in VS Code, then press `F5` to launch the Extension Development Host. Open a Markdown file and use the `Toggle MD/HTML View` command from the editor title bar.
+
+## Usage
+
+1. Open a Markdown file (`.md`).
+2. Click the preview toggle icon in the editor title bar.
+3. The rendered preview opens next to the source file.
+4. Click links, anchors, or local file references directly inside the preview.
+
+## Recommended workflow
+
+- Use side-by-side editing for fast Markdown authoring.
+- Keep the preview open while modifying the source file.
+- Use heading links and Mermaid blocks to document complex content clearly.
+
+## Development notes
+
+- The extension uses `webpack` to bundle `src/extension.ts` into `dist/extension.js`.
+- KaTeX rendering is powered by `markdown-it-katex`.
+- Mermaid diagrams are rendered in the preview with client-side Mermaid JS.
+
+## Contributing
+
+If you want to improve the extension, feel free to open issues or submit a pull request.
+
