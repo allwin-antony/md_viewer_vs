@@ -3,7 +3,7 @@
   "displayName": "MD Previewer",
   "description": "Advanced Markdown viewer with LaTeX, Mermaid diagrams, syntax highlighting, and rich formatting support",
   "publisher": "allwin-antony",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "icon": "icon.png",
   "repository": {
     "type": "git",
