@@ -4,7 +4,7 @@ A high-performance, polished Markdown previewer for Visual Studio Code.
 
 **MD Previewer** provides a seamless, GitLab-style preview experience for your Markdown documents. It’s packed with modern features, fully optimized for speed, and designed to look premium right out of the box.
 
-![Click the toggle button to open the Markdown preview](how_to.gif)
+![Click the toggle button to open the Markdown preview](assets/how_to.gif)
 
 ---
 
@@ -30,7 +30,7 @@ A high-performance, polished Markdown previewer for Visual Studio Code.
 
 ## 🎬 Example
 
-![Click the toggle button to open the Markdown preview](how_to.gif)
+![Click the toggle button to open the Markdown preview](assets/how_to.gif)
 
 ---
 
@@ -41,7 +41,7 @@ This extension is built for efficiency:
 - **Zero-Lag Rendering**: Uses a lightning-fast `postMessage` architecture to update content without flickering.
 - **Client-Side Heavy Lifting**: Mermaid and KaTeX are rendered directly in the webview browser, keeping the VS Code extension host responsive.
 - **Smart Caching**: Rendered HTML and image lookups are cached to minimize CPU and disk usage.
-- **Ultra Lightweight**: The final extension package is less than **400KB**.
+- **Ultra Lightweight**: The compiled extension bundle is roughly **1.06 MiB**.
 
 ---
 
@@ -51,4 +51,4 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 
 ---
 
-Created by **Allwin Antony**
+Created by **Allwin S Antony**
