@@ -1,3 +1,4 @@
+
 # MD Previewer 🚀
 
 A high-performance, polished Markdown previewer for Visual Studio Code.
@@ -11,12 +12,12 @@ MD Previewer can be launched in two convenient ways:
 ### 1. Editor Title Bar Button
 Open any Markdown file and click the **View Preview** icon in the top-right corner of the editor.
 
-![Initiating via Button Click](assets/button_click.gif)
+![Initiating via Button Click](button_click.gif)
 
 ### 2. Explorer Context Menu
 Right-click any `.md` file in the File Explorer and select **View Preview**.
 
-![Initiating via Context Menu](assets/context_menu.gif)
+![Initiating via Context Menu](context_menu.gif)
 
 ---
 

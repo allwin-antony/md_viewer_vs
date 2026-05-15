@@ -3,8 +3,12 @@
   "displayName": "MD Previewer [Markdown Viewer]",
   "description": "Advanced Markdown viewer with LaTeX, Mermaid diagrams, syntax highlighting, and rich formatting support",
   "publisher": "allwin-antony",
-  "version": "1.0.6",
-  "icon": "assets/icon.png",
+  "version": "1.0.7",
+  "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/allwin-antony/md_viewer_vs"
@@ -15,6 +19,15 @@
   "categories": [
     "Visualization",
     "Other"
+  ],
+  "keywords": [
+    "markdown",
+    "preview",
+    "mermaid",
+    "latex",
+    "katex",
+    "viewer",
+    "markdown-preview"
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
