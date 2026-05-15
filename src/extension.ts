@@ -150,30 +150,25 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }
 
-  const toggleCommand = vscode.commands.registerCommand("mdViewer.toggleView", () => {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor || editor.document.languageId !== "markdown") return;
-
-    const docUri = editor.document.uri;
-    const docUriString = docUri.toString();
+  async function showPreview(uri: vscode.Uri) {
+    const doc = await vscode.workspace.openTextDocument(uri);
+    const docUriString = uri.toString();
 
     if (panelMap.has(docUriString)) {
-      const panel = panelMap.get(docUriString)!;
-      panel.dispose();
-      panelMap.delete(docUriString);
+      panelMap.get(docUriString)!.reveal(vscode.ViewColumn.Beside);
       return;
     }
 
-    const docDir = path.dirname(docUri.fsPath);
-    const fileName = editor.document.fileName.split(/[/\\]/).pop();
+    const docDir = path.dirname(uri.fsPath);
+    const fileName = path.basename(uri.fsPath);
 
     const panel = vscode.window.createWebviewPanel(
-      "mdViewer-" + Math.random().toString(36).substring(7),
+      "mdViewer",
       "Preview: " + fileName,
       vscode.ViewColumn.Beside,
       {
         enableScripts: true,
-        retainContextWhenHidden: false, // Optimized webview usage (mem saving)
+        retainContextWhenHidden: false,
         localResourceRoots: [
           vscode.Uri.file(docDir),
           ...(vscode.workspace.workspaceFolders?.map((f) => f.uri) || []),
@@ -182,7 +177,7 @@ export function activate(context: vscode.ExtensionContext) {
       }
     );
 
-    updatePanel(editor.document, panel, true);
+    updatePanel(doc, panel, true);
 
     panel.webview.onDidReceiveMessage((message) => {
       switch (message.command) {
@@ -207,9 +202,57 @@ export function activate(context: vscode.ExtensionContext) {
     panelMap.set(docUriString, panel);
     panel.onDidDispose(() => {
       panelMap.delete(docUriString);
-      htmlCache.delete(docUriString); // Free memory when closed
+      htmlCache.delete(docUriString);
     }, null, context.subscriptions);
+  }
+
+  const toggleCommand = vscode.commands.registerCommand("mdViewer.toggleView", () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || editor.document.languageId !== "markdown") return;
+
+    const docUriString = editor.document.uri.toString();
+    if (panelMap.has(docUriString)) {
+      panelMap.get(docUriString)!.dispose();
+      return;
+    }
+    showPreview(editor.document.uri);
   });
+
+  const viewPreviewCommand = vscode.commands.registerCommand("mdViewer.viewPreview", (uri: vscode.Uri) => {
+    if (uri) {
+      showPreview(uri);
+    } else {
+      const editor = vscode.window.activeTextEditor;
+      if (editor && editor.document.languageId === "markdown") {
+        showPreview(editor.document.uri);
+      }
+    }
+  });
+
+  // Status Bar Item
+  const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+  statusBarItem.command = "mdViewer.toggleView";
+  statusBarItem.tooltip = "Click to Toggle Markdown Preview";
+  context.subscriptions.push(statusBarItem);
+
+  function updateStatusBarItem(): void {
+    const editor = vscode.window.activeTextEditor;
+    if (editor && editor.document.languageId === "markdown") {
+      statusBarItem.text = `$(markdown) Preview MD`;
+      statusBarItem.show();
+    } else {
+      statusBarItem.hide();
+    }
+  }
+
+  // Initial update
+  updateStatusBarItem();
+
+  // Listen for editor changes to show/hide status bar item
+  vscode.window.onDidChangeActiveTextEditor(updateStatusBarItem, null, context.subscriptions);
+  vscode.workspace.onDidOpenTextDocument(updateStatusBarItem, null, context.subscriptions);
+
+  context.subscriptions.push(toggleCommand, viewPreviewCommand);
 
   // Live updates via postMessage
   vscode.workspace.onDidChangeTextDocument(e => {

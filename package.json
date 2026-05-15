@@ -1,9 +1,9 @@
 {
   "name": "md-viewer",
-  "displayName": "MD Previewer",
+  "displayName": "MD Previewer [Markdown Viewer]",
   "description": "Advanced Markdown viewer with LaTeX, Mermaid diagrams, syntax highlighting, and rich formatting support",
   "publisher": "allwin-antony",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "icon": "assets/icon.png",
   "repository": {
     "type": "git",
@@ -13,19 +13,24 @@
     "vscode": "^1.80.0"
   },
   "categories": [
+    "Visualization",
     "Other"
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
-    "onCommand:mdViewer.toggleView",
     "onLanguage:markdown"
   ],
   "contributes": {
     "commands": [
       {
         "command": "mdViewer.toggleView",
-        "title": "Toggle MD/HTML View",
-        "icon": "$(code)"
+        "title": "View Preview",
+        "icon": "$(markdown)"
+      },
+      {
+        "command": "mdViewer.viewPreview",
+        "title": "View Preview",
+        "icon": "$(eye)"
       }
     ],
     "menus": {
@@ -38,6 +43,13 @@
         {
           "command": "mdViewer.toggleView",
           "when": "activeWebviewPanelId == 'mdViewer'",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "mdViewer.viewPreview",
+          "when": "resourceLangId == markdown",
           "group": "navigation"
         }
       ]
@@ -61,7 +73,7 @@
   "dependencies": {
     "highlight.js": "^11.11.1",
     "katex": "^0.16.8",
-    "markdown-it": "^13.0.1",
+    "markdown-it": "^14.1.1",
     "markdown-it-emoji": "^3.0.0",
     "markdown-it-task-lists": "^2.1.1"
   }
