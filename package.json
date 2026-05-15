@@ -4,7 +4,7 @@
   "description": "Advanced Markdown viewer with LaTeX, Mermaid diagrams, syntax highlighting, and rich formatting support",
   "publisher": "allwin-antony",
   "version": "1.0.7",
-  "icon": "icon.png",
+  "icon": "assets/icon.png",
   "galleryBanner": {
     "color": "#1e1e1e",
     "theme": "dark"
