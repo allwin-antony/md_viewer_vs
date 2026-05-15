@@ -1,66 +1,47 @@
-# MD Viewer
+# MD Previewer 🚀
 
-A fast, polished Markdown preview extension for Visual Studio Code.
+A high-performance, polished Markdown previewer for Visual Studio Code.
 
-MD Viewer renders Markdown files directly in a side-by-side Webview, with support for advanced content such as math formulas, Mermaid diagrams, syntax highlighting, and smooth anchor navigation.
+**MD Previewer** provides a seamless, GitLab-style preview experience for your Markdown documents. It’s packed with modern features, fully optimized for speed, and designed to look premium right out of the box.
 
-## Features
+---
 
-- **Markdown preview toggle**: Open or close the rendered view from the editor title bar.
-- **Multi-file previews**: Keep multiple Markdown previews open at once, each matched to its source file.
-- **KaTeX math support**: Render inline math (`$a^2$`) and display math (`$$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$`).
-- **Mermaid diagrams**: Render flowcharts, sequence diagrams, and other Mermaid graph types within the preview.
-- **Syntax highlighting**: Code blocks are styled using Highlight.js for better readability.
-- **Anchor scrolling**: Click internal heading links and jump smoothly to the correct section.
-- **Relative link navigation**: Clicking a local file link opens that file in VS Code.
-- **Local image support**: Handles relative image paths and URL-encoded filenames.
-- **Task lists and emojis**: Supports GitHub-style task lists and emoji syntax.
+## ✨ Key Features
 
-## Installation
+- **🚀 Real-time Live Preview**: Your changes are rendered instantly as you type.
+- **📊 Mermaid Diagrams**: Support for flowcharts, sequence diagrams, and more.
+- **🧪 Math Formulas (KaTeX)**: Beautiful LaTeX math rendering for both inline and block equations.
+- **📂 Smart Navigation**:
+  - **Internal Anchors**: Smooth scrolling for table of contents and heading links.
+  - **File Links**: Clicking a relative link (e.g., `[Setup](setup.md)`) opens that file in VS Code automatically.
+- **🖼️ Intelligent Image Handling**: Support for relative paths and local images, including those with spaces in filenames.
+- **🎨 Syntax Highlighting**: Premium code block styling with `Highlight.js`.
+- **✅ Modern MD Support**: Task lists, emojis, and GitLab-style alert blocks.
 
-1. Clone this repository:
+---
 
-```bash
-git clone https://github.com/allwin-antony/md_viewer_vs.git
-cd md_viewer_vs
-```
+## 🛠️ How to Use
 
-2. Install dependencies:
+1. **Open** any Markdown file (`.md`).
+2. **Click** the `</>` (Toggle MD/HTML View) button in the **Editor Title Bar** (top right).
+3. **Enjoy** the live preview side-by-side with your code!
 
-```bash
-npm install
-```
+---
 
-3. Build the extension:
+## ⚡ Performance First
 
-```bash
-npm run compile
-```
+This extension is built for efficiency:
+- **Zero-Lag Rendering**: Uses a lightning-fast `postMessage` architecture to update content without flickering.
+- **Client-Side Heavy Lifting**: Mermaid and KaTeX are rendered directly in the webview browser, keeping the VS Code extension host responsive.
+- **Smart Caching**: Rendered HTML and image lookups are cached to minimize CPU and disk usage.
+- **Ultra Lightweight**: The final extension package is less than **400KB**.
 
-## Running locally
+---
 
-Open the folder in VS Code, then press `F5` to launch the Extension Development Host. Open a Markdown file and use the `Toggle MD/HTML View` command from the editor title bar.
+## 📜 License
 
-## Usage
+Distributed under the **MIT License**. See `LICENSE` for more information.
 
-1. Open a Markdown file (`.md`).
-2. Click the preview toggle icon in the editor title bar.
-3. The rendered preview opens next to the source file.
-4. Click links, anchors, or local file references directly inside the preview.
-
-## Recommended workflow
-
-- Use side-by-side editing for fast Markdown authoring.
-- Keep the preview open while modifying the source file.
-- Use heading links and Mermaid blocks to document complex content clearly.
-
-## Development notes
-
-- The extension uses `webpack` to bundle `src/extension.ts` into `dist/extension.js`.
-- KaTeX rendering is powered by `markdown-it-katex`.
-- Mermaid diagrams are rendered in the preview with client-side Mermaid JS.
-
-## Contributing
-
-If you want to improve the extension, feel free to open issues or submit a pull request.
+---
+Created by **Allwin Antony**
 
