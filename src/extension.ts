@@ -307,11 +307,16 @@ function getWebviewContent(body: string): string {
         .katex-display { margin: 1em 0; overflow-x: auto; overflow-y: hidden; text-align: center; }
         html { scroll-behavior: smooth; }
         ::selection { background-color: var(--vscode-editor-selectionBackground); }
+        /* Highlight.js custom overrides */
+        .hljs { background: transparent !important; padding: 0 !important; }
     </style>
     <!-- KaTeX CSS & Client JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <!-- Highlight.js Themes (Light/Dark) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github.min.css" id="highlight-light">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.11.1/styles/github-dark.min.css" id="highlight-dark">
 </head>
 <body>
     <div id="content">${body}</div>
@@ -319,6 +324,29 @@ function getWebviewContent(body: string): string {
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>
         const vscode = acquireVsCodeApi();
+
+        // Theme switching logic
+        const lightTheme = document.getElementById('highlight-light');
+        const darkTheme = document.getElementById('highlight-dark');
+
+        function updateTheme() {
+            const isDark = document.body.classList.contains('vscode-dark') || 
+                           document.body.classList.contains('vscode-high-contrast');
+            if (isDark) {
+                if (lightTheme) lightTheme.disabled = true;
+                if (darkTheme) darkTheme.disabled = false;
+            } else {
+                if (lightTheme) lightTheme.disabled = false;
+                if (darkTheme) darkTheme.disabled = true;
+            }
+        }
+
+        // Watch for body class changes
+        const observer = new MutationObserver(updateTheme);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+        // Run once initially
+        updateTheme();
 
         function renderMathAndMermaid() {
             // KaTeX Auto Render (Client-side)
