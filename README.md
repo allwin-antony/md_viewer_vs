@@ -4,9 +4,7 @@
 
 # MD Previewer
 
-[![Version](https://img.shields.io/visual-studio-marketplace/v/allwin-antony.md-viewer?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=allwin-antony.md-viewer)
-[![Installs](https://img.shields.io/visual-studio-marketplace/i/allwin-antony.md-viewer?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=allwin-antony.md-viewer)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Version](https://badgen.net/vs-marketplace/v/allwin-antony.md-viewer?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=allwin-antony.md-viewer) [![Installs](https://badgen.net/vs-marketplace/i/allwin-antony.md-viewer?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=allwin-antony.md-viewer) [![Open VSX Version](https://img.shields.io/open-vsx/v/allwin-antony/md-viewer?style=flat-square)](https://open-vsx.org/extension/allwin-antony/md-viewer) [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/allwin-antony/md-viewer?style=flat-square)](https://open-vsx.org/extension/allwin-antony/md-viewer) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 A high-performance, structurally optimized Markdown previewer for Visual Studio Code.
 
