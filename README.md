@@ -6,41 +6,85 @@
 
 [![Version](https://badgen.net/vs-marketplace/v/allwin-antony.md-viewer?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=allwin-antony.md-viewer) [![Installs](https://badgen.net/vs-marketplace/i/allwin-antony.md-viewer?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=allwin-antony.md-viewer) [![Open VSX Version](https://img.shields.io/open-vsx/v/allwin-antony/md-viewer?style=flat-square)](https://open-vsx.org/extension/allwin-antony/md-viewer) [![Open VSX Downloads](https://img.shields.io/open-vsx/dt/allwin-antony/md-viewer?style=flat-square)](https://open-vsx.org/extension/allwin-antony/md-viewer) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-A high-performance, structurally optimized Markdown previewer for Visual Studio Code.
+A high-performance, structurally optimized Markdown previewer for Visual Studio Code featuring advanced syntax translation, offline support, interactive integrations, and smooth bidirectional synchronization.
 
 **MD Previewer** provides a seamless, GitLab-style preview environment for Markdown documents. Engineered for speed and precision, it combines an advanced rendering pipeline with native-feeling UI components to deliver a robust documentation workflow.
 
 ---
 
-## Features
+## 🌟 Premium Features
 
-### Advanced UI & Navigation
-- **Collapsible Minimap Outline**: Features a right-docked, glassmorphic Table of Contents panel (`backdrop-filter: blur`) that dynamically adapts to active VS Code themes. It supports persistent state storage, interactive scroll-spy highlighting, and responsive document reflow.
-- **Bi-Directional Scroll Synchronization**: Implements decoupled, dual-throttled scroll synchronization. By utilizing a dynamic scroll-driven debouncer, the extension completely eliminates IPC echo loops, ensuring perfectly stable and smooth scrolling between the editor and the preview window.
+### 🔌 100% Offline Mode (Air-Gapped Environments)
+All third-party heavy dependencies are bundled directly inside the extension folder:
+* **KaTeX** math libraries and standard glyph fonts.
+* **Highlight.js** dark/light syntax coloring stylesheets.
+* **Mermaid** dynamic diagrammatic chart scripting.
+* **Morphdom** micro-diffing HTML engine.
+The extension functions flawlessly without an active internet connection, satisfying the highest privacy and air-gapped development requirements.
 
-### Rich Markdown Rendering
-- **Diagrams & Mathematics**: Natively supports Mermaid.js for complex diagrams (flowcharts, sequence, Gantt) and KaTeX for high-fidelity LaTeX block and inline equations.
-- **GitLab-Flavored Elements**: Renders standard GitLab alert blocks (Note, Warning, Caution), task lists, and emojis.
-- **Media Integration**: Automatically parses and embeds responsive iframe cards for YouTube and Vimeo links.
-- **Intelligent Path Resolution**: Supports relative local file paths, including images with spaces, and automatically resolves internal file links to open directly within the VS Code workspace.
+### 🔄 Interactive Task Lists (Two-Way Sync)
+Clicking a checkbox inside the preview directly toggles the corresponding `- [ ]` <-> `- [x]` Markdown syntax in your active text editor. The modification runs as a native VS Code edit action, fully preserving the editor's undo/redo history stack!
 
-### Publication-Grade PDF Export
-- **Headless Chromium Generation**: Generates clean, publication-ready PDF documents natively using headless Chrome/Chromium without requiring external web services.
-- **Optimized Print Layouts**: The CSS engine automatically strips all UI overlays, minimization tabs, and minimap boundaries prior to generation, ensuring a clean print structure. Default browser headers and footers (local file paths) are completely disabled.
+### 🎨 GitLab & GitHub Callout Alert Blocks
+Standard blockquotes starting with alert syntax are rendered as premium, visually striking callouts featuring harmonious color palettes, custom SVG icons, and theme-accented borders:
+* `> [!NOTE]` — Sleek blue info callout.
+* `> [!TIP]` — Vivid green optimization tip.
+* `> [!IMPORTANT]` — Regal violet critical guidance.
+* `> [!WARNING]` — Energetic amber warning notice.
+* `> [!CAUTION]` — High-contrast red high-risk warning.
+
+### 💾 Standalone HTML & PDF Exporters
+Export your documents instantly using the download icons in the Outline sidebar:
+* **HTML Exporter:** Packages all custom preview styles, KaTeX formulas, Highlight.js code themes, and dynamically converts all local relative images into Base64 data-URIs. All interactive sidebar controls are stripped out using robust HTML comment boundary markers, producing a single, highly portable, self-contained `.html` file.
+* **PDF Exporter:** Headless Chrome prints publication-ready PDF documents locally. The layout engine strips out margins, outline tabs, and disables standard browser page links/file headers automatically for a clean physical format.
+
+### 📋 Hover "Copy Code" Utility
+Subtle clipboard copy buttons fade in at the top-right of every fenced pre/code block. Clicking a button runs a secure clipboard copy operation and animates the icon into a checkmark with a temporary green micro-animation.
+
+### 🔍 Glassmorphic Image Lightbox
+All rendered markdown images (excluding emojis and alert icons) are interactive zoom targets. Clicking on an image displays it in a premium fullscreen glassmorphic overlay with background blur. The zoom fades out gracefully on clicking anywhere or pressing the `Escape` key.
+
+### 🧬 Resilient Mermaid & UML Translators
+* **Theme-Aware Rendering:** Mermaid initializes dynamically with custom contrast variables. It automatically re-renders with `theme: 'dark'` or `theme: 'default'` when switching VS Code themes.
+* **Typo Resilience:** The parser automatically sanitizes common typing habits by stripping trailing semicolons on diagram type declaration lines (e.g. `graph TD;` -> `graph TD`), preventing parser syntax errors.
+* **UML & Sequence Translators:** Automatically parses `wsd`, `websequence`, `sequence`, `uml`, and `plantuml` blocks, translating them into native Mermaid sequence charts for a seamless viewing experience.
+
+### 🗂️ Smart Split Panel Layout Management
+The extension maintains a highly polished, non-cluttering workspace by dynamically tracking active editor columns:
+* **Anti-Clutter Capping:** Spawning previews will **never** create a new right column (Column 4, etc.), keeping your workbench perfectly clean.
+* **Adjacent Split Routing:**
+  * If the markdown editor is open in **Column 1**, the preview opens to its right in **Column 2**.
+  * If the markdown editor is in **Column 2 or higher** (e.g., Column 3), the preview automatically opens to its left in **Column - 1** (e.g., Column 2 for a Column 3 editor, Column 1 for a Column 2 editor).
+This ensures your preview is always kept **directly adjacent** to the active editor for seamless side-by-side editing.
+
 
 ---
 
-## Architecture & Performance
+## 🚀 Scroll Synchronization & Architecture
 
-The extension is designed to maintain a near-zero footprint on the extension host:
+MD Previewer is built on a highly optimized, near-zero footprint architecture to prevent extension lag:
 
-- **Debounced IPC Bridge**: Real-time document updates are batched and debounced on the host side (150ms limit), preventing CPU thrashing during high-speed typing.
-- **True DOM Diffing**: Utilizes `morphdom` in the client webview to surgically patch the HTML tree. This eliminates destructive `innerHTML` wipes, entirely preserving the state of active embedded elements (such as playing videos) during live document updates.
-- **Asynchronous Asset Loading**: Heavy client-side libraries (Highlight.js, Mermaid, KaTeX) are loaded asynchronously, keeping the initial render and memory overhead extremely low (total bundle ~1.1 MiB).
+1. **Host-Side Scroll Loop Guard:** By keeping a shared programmatic scrolling registry (`hostScrollingPanels`), the editor ignores incoming scroll updates generated programmatically by sync events, completely eliminating jittery scroll fighting and infinite loop echo loops.
+2. **Client-Side User Interaction Lock:** The webview tracks active scrolling gestures (`mouseenter`, `focus`, `wheel`, `touchstart`, `keydown`). It only sends coordinate updates back to the active editor if the user is actively interacting with the preview window.
+3. **Fine-Grained Block Spy Matching:** Line attribute markers (`data-line`) are dynamically mapped to *every* block-level element featuring source mapping (including individual nested table rows `tr` and list items `li`), allowing smooth, precise, row-by-row scroll tracking through extremely large tables.
+4. **Morphdom Surgical DOM Patches:** Batch updates are debounced (150ms limits) and processed through client-side morphdiffing. This avoids destructive `innerHTML` resets, preserving the state of elements (such as playing YouTube interactive players) while you type!
 
 ---
 
-## Usage
+## ⚙️ Configuration
+
+Customize the preview typography and PDF renderer behavior in your VS Code `settings.json`:
+
+| Setting | Type | Default Value | Description |
+|---------|------|---------------|-------------|
+| `mdViewer.chromePath` | `string` | `""` | Absolute path to local Google Chrome or Chromium executable. If empty, the system will auto-detect it. |
+| `mdViewer.preview.fontFamily` | `string` | System Font Stack | Custom CSS font family for preview typography. |
+| `mdViewer.preview.fontSize` | `string` | `"14px"` | Custom CSS font size for preview typography. |
+| `mdViewer.preview.lineHeight` | `string` | `"1.7"` | Custom line height for preview typography. |
+
+---
+
+## 🛠️ Usage
 
 You can launch MD Previewer using either of the following methods:
 
@@ -56,17 +100,7 @@ Right-click any `.md` file in the VS Code File Explorer and select **View Previe
 
 ---
 
-## Configuration
-
-You can customize the extension via your `settings.json` file. 
-
-| Setting | Type | Description |
-|---------|------|-------------|
-| `mdViewer.chromePath` | `string` | Optional absolute path to your local Chrome or Chromium executable used for PDF generation. The extension will attempt to auto-detect this path if left empty. |
-
----
-
-## License
+## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
