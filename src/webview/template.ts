@@ -224,6 +224,38 @@ export function getWebviewContent(
         .lightbox-overlay.active .lightbox-image {
             transform: scale(1);
         }
+        .lightbox-close-btn {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2010;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .lightbox-close-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1) rotate(90deg);
+        }
+        .lightbox-close-btn:active {
+            transform: scale(0.95);
+        }
+        .lightbox-close-btn svg {
+            width: 20px;
+            height: 20px;
+        }
 
         /* YouTube Embed Cards */
         .yt-card-link {
@@ -643,6 +675,11 @@ export function getWebviewContent(
 
     <!-- Image Lightbox Zoom Overlay -->
     <div class="lightbox-overlay" id="lightboxOverlay">
+        <button class="lightbox-close-btn" id="lightboxCloseBtn" aria-label="Close image zoom" title="Close zoom">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </button>
         <img class="lightbox-image" id="lightboxImage" src="" alt="Zoomed view">
     </div>
 
@@ -817,8 +854,12 @@ export function getWebviewContent(
         function attachLightbox() {
             const images = document.querySelectorAll('#content img');
             images.forEach(img => {
-                // Ignore small icon or placeholder tags
-                if (img.classList.contains('alert-icon') || img.classList.contains('yt-fallback-logo')) return;
+                // Ignore small icon or placeholder tags, and don't lightbox images inside links
+                if (
+                    img.classList.contains('alert-icon') || 
+                    img.classList.contains('yt-fallback-logo') ||
+                    img.closest('a')
+                ) return;
                 
                 // Prevent duplicate listeners
                 img.removeEventListener('click', openLightbox);
@@ -836,6 +877,15 @@ export function getWebviewContent(
         lightboxOverlay.addEventListener('click', () => {
             lightboxOverlay.classList.remove('active');
         });
+
+        // Close lightbox via close button
+        const lightboxCloseBtn = document.getElementById('lightboxCloseBtn');
+        if (lightboxCloseBtn) {
+            lightboxCloseBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                lightboxOverlay.classList.remove('active');
+            });
+        }
 
         // Close lightbox on Escape key
         document.addEventListener('keydown', (e) => {
@@ -1066,8 +1116,8 @@ export function getWebviewContent(
             }
 
             if (href.startsWith('http://') || href.startsWith('https://')) {
-                e.preventDefault();
-                vscodeApi.postMessage({ command: 'openExternal', url: href });
+                // Let VS Code's native webview handle external HTTP/HTTPS links naturally.
+                // This prevents the page from opening twice in the default browser.
                 return;
             }
 
