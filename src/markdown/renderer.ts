@@ -201,17 +201,43 @@ export class MarkdownRenderer {
   private mathInlineRule(state: any, silent: boolean): boolean {
     const start = state.pos;
     if (state.src.charCodeAt(start) !== 0x24 /* $ */) return false;
+
+    // Rule 1: Starting $ must not be escaped with a backslash
+    if (start > 0 && state.src.charCodeAt(start - 1) === 0x5c /* \ */) {
+      return false;
+    }
+
+    // Rule 2: Starting $ must not be followed by whitespace
+    if (start + 1 >= state.src.length) return false;
+    const nextChar = state.src.charCodeAt(start + 1);
+    if (nextChar === 0x20 || nextChar === 0x09 || nextChar === 0x0a || nextChar === 0x0d) {
+      return false;
+    }
+
     let end = -1;
     let pos = start + 1;
     while (pos < state.src.length) {
-      if (state.src.charCodeAt(pos) === 0x24) {
-        end = pos;
-        break;
+      if (state.src.charCodeAt(pos) === 0x24 /* $ */) {
+        // Ensure the ending $ is not escaped with a backslash
+        if (state.src.charCodeAt(pos - 1) !== 0x5c /* \ */) {
+          end = pos;
+          break;
+        }
       }
-      if (state.src.charCodeAt(pos) === 0x5c /* \ */) pos++;
+      if (state.src.charCodeAt(pos) === 0x5c /* \ */) {
+        pos++; // skip escaped char
+      }
       pos++;
     }
+
     if (end === -1) return false;
+
+    // Rule 3: Ending $ must not be preceded by whitespace
+    const prevChar = state.src.charCodeAt(end - 1);
+    if (prevChar === 0x20 || prevChar === 0x09 || prevChar === 0x0a || prevChar === 0x0d) {
+      return false;
+    }
+
     if (!silent) {
       const token = state.push("text", "", 0);
       token.content = state.src.slice(start, end + 1);

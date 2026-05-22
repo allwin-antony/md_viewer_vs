@@ -228,7 +228,20 @@ export class MarkdownPreviewPanel {
         await exportToPdf(chromeExecutable, tempHtmlPath, fileUri.fsPath);
         vscode.window.showInformationMessage(`PDF successfully exported to: ${path.basename(fileUri.fsPath)}`);
       } catch (err: any) {
-        vscode.window.showErrorMessage(`Failed to export PDF: ${err.message}`);
+        const isNotFoundError = err.message.includes("ENOENT") || 
+                              err.message.includes("not found") || 
+                              err.message.includes("is not recognized");
+        
+        let errorMsg = `Failed to export PDF: ${err.message}`;
+        if (isNotFoundError) {
+          errorMsg = `Failed to export PDF: Google Chrome or Chromium executable could not be found. If it is installed via Snap/Flatpak or a custom location, please specify its path in the settings.`;
+        }
+
+        vscode.window.showErrorMessage(errorMsg, "Configure Chrome Path").then((selection) => {
+          if (selection === "Configure Chrome Path") {
+            vscode.commands.executeCommand("workbench.action.openSettings", "mdViewer.chromePath");
+          }
+        });
       } finally {
         this.cleanupTempFile(tempHtmlPath);
         this.panel.webview.postMessage({ command: "exportComplete" });

@@ -36,13 +36,13 @@ Standard blockquotes starting with alert syntax are rendered as premium, visuall
 ### 💾 Standalone HTML & PDF Exporters
 Export your documents instantly using the download icons in the Outline sidebar:
 * **HTML Exporter:** Packages all custom preview styles, KaTeX formulas, Highlight.js code themes, and dynamically converts all local relative images into Base64 data-URIs. All interactive sidebar controls are stripped out using robust HTML comment boundary markers, producing a single, highly portable, self-contained `.html` file.
-* **PDF Exporter:** Headless Chrome prints publication-ready PDF documents locally. The layout engine strips out margins, outline tabs, and disables standard browser page links/file headers automatically for a clean physical format.
+* **PDF Exporter:** Headless Chrome or Chromium prints publication-ready PDF documents locally. Includes smart path heuristics for Linux (fully compatible with sandboxed Snap & Flatpak environments) and provides direct settings link troubleshooting if no local browser executable is detected.
 
 ### 📋 Hover "Copy Code" Utility
 Subtle clipboard copy buttons fade in at the top-right of every fenced pre/code block. Clicking a button runs a secure clipboard copy operation and animates the icon into a checkmark with a temporary green micro-animation.
 
 ### 🔍 Glassmorphic Image Lightbox
-All rendered markdown images (excluding emojis and alert icons) are interactive zoom targets. Clicking on an image displays it in a premium fullscreen glassmorphic overlay with background blur. The zoom fades out gracefully on clicking anywhere or pressing the `Escape` key.
+All rendered markdown images (excluding emojis, alert icons, and linked badges) are interactive zoom targets. Clicking on an image displays it in a premium fullscreen glassmorphic overlay with background blur and a dedicated close button (`×`) with smooth micro-animations. The zoom fades out gracefully on clicking the close button, clicking anywhere on the backdrop, or pressing the `Escape` key.
 
 ### 🧬 Resilient Mermaid & UML Translators
 * **Theme-Aware Rendering:** Mermaid initializes dynamically with custom contrast variables. It automatically re-renders with `theme: 'dark'` or `theme: 'default'` when switching VS Code themes.

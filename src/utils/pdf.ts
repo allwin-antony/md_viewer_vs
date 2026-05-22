@@ -64,6 +64,22 @@ export function findChromePath(): string {
         }
       } catch (e) {}
     }
+
+    // Direct check for common Snap and Flatpak installations in standard absolute paths
+    const absoluteFallbacks = [
+      "/snap/bin/google-chrome",
+      "/snap/bin/google-chrome-stable",
+      "/snap/bin/chromium",
+      "/snap/bin/microsoft-edge",
+      "/usr/bin/google-chrome",
+      "/usr/bin/google-chrome-stable",
+      "/usr/bin/chromium",
+      "/usr/bin/chromium-browser",
+      "/var/lib/flatpak/exports/bin/org.chromium.Chromium",
+    ];
+    for (const p of absoluteFallbacks) {
+      if (fs.existsSync(p)) return p;
+    }
   }
 
   // Final fallback (just executable name, hoping it's in the PATH)
