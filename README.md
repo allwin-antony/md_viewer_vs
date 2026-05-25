@@ -25,6 +25,13 @@ The extension functions flawlessly without an active internet connection, satisf
 ### 🔄 Interactive Task Lists (Two-Way Sync)
 Clicking a checkbox inside the preview directly toggles the corresponding `- [ ]` <-> `- [x]` Markdown syntax in your active text editor. The modification runs as a native VS Code edit action, fully preserving the editor's undo/redo history stack!
 
+### 🎯 Bidirectional Selection Synchronization
+Maintain a fully unified editing experience with absolute synchronicity between your source code and visual output:
+* **Editor-to-Preview Selection:** Selecting a paragraph, heading, list item, or code block inside your Markdown source editor instantly highlights the corresponding block on the preview side using a sleek, theme-matching dashed border and subtle translucent selection overlay.
+* **Preview-to-Editor Selection:** Selecting text inside the rendered preview automatically highlights and selects the corresponding lines inside your VS Code text editor, scrolling it smoothly into view.
+* **Intelligent Deselection:** Clicking in the empty workspace of either the editor or the preview instantly clears active selections and highlights in both windows simultaneously.
+* **Complete User Customizability:** Easily toggle selection synchronization on or off via the `mdViewer.preview.syncSelection` configuration setting.
+
 ### 🎨 GitLab & GitHub Callout Alert Blocks
 Standard blockquotes starting with alert syntax are rendered as premium, visually striking callouts featuring harmonious color palettes, custom SVG icons, and theme-accented borders:
 * `> [!NOTE]` — Sleek blue info callout.
@@ -81,6 +88,7 @@ Customize the preview typography and PDF renderer behavior in your VS Code `sett
 | `mdViewer.preview.fontFamily` | `string` | System Font Stack | Custom CSS font family for preview typography. |
 | `mdViewer.preview.fontSize` | `string` | `"14px"` | Custom CSS font size for preview typography. |
 | `mdViewer.preview.lineHeight` | `string` | `"1.7"` | Custom line height for preview typography. |
+| `mdViewer.preview.syncSelection` | `boolean` | `true` | Enable bidirectional selection synchronization between the markdown editor and the preview. |
 
 ---
 

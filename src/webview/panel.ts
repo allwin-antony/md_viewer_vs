@@ -17,6 +17,7 @@ export class MarkdownPreviewPanel {
   private readonly htmlCache: Map<string, { hash: string; html: string }>;
   private readonly hostScrollingPanels: Set<vscode.WebviewPanel>;
   private updateTimeout: NodeJS.Timeout | null = null;
+  public isSyncingSelection = false;
 
   constructor(
     panel: vscode.WebviewPanel,
@@ -100,6 +101,18 @@ export class MarkdownPreviewPanel {
           command: "scrollToLine",
           line: initialVisibleLine,
         });
+        
+        // Also send current selection if any
+        if (sourceEditor && !sourceEditor.selection.isEmpty) {
+          const config = vscode.workspace.getConfiguration("mdViewer.preview");
+          if (config.get<boolean>("syncSelection", true)) {
+            this.panel.webview.postMessage({
+              command: "selectLines",
+              startLine: sourceEditor.selection.start.line,
+              endLine: sourceEditor.selection.end.line
+            });
+          }
+        }
         break;
 
       case "openExternal":
@@ -135,6 +148,35 @@ export class MarkdownPreviewPanel {
           setTimeout(() => {
             this.hostScrollingPanels.delete(this.panel);
           }, 300);
+        }
+        break;
+
+      case "editorSelect":
+        if (typeof message.startLine === "number" && typeof message.endLine === "number") {
+          const config = vscode.workspace.getConfiguration("mdViewer.preview");
+          if (!config.get<boolean>("syncSelection", true)) {
+            break;
+          }
+          const editor = vscode.window.visibleTextEditors.find(
+            (ed) => ed.document.uri.toString() === docUriString
+          );
+          if (editor) {
+            this.isSyncingSelection = true;
+            if (message.startLine === -1 && message.endLine === -1) {
+              const activePos = editor.selection.active;
+              editor.selection = new vscode.Selection(activePos, activePos);
+            } else {
+              const startPos = new vscode.Position(message.startLine, 0);
+              const targetEndLine = Math.min(message.endLine, editor.document.lineCount - 1);
+              const lastLineLen = editor.document.lineAt(targetEndLine).text.length;
+              const endPos = new vscode.Position(targetEndLine, lastLineLen);
+              editor.selection = new vscode.Selection(startPos, endPos);
+              editor.revealRange(new vscode.Range(startPos, endPos), vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+            }
+            setTimeout(() => {
+              this.isSyncingSelection = false;
+            }, 50);
+          }
         }
         break;
 

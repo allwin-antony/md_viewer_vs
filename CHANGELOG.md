@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.4]
+### Added
+- **Bidirectional Selection Sync**: Enjoy seamless, native-feeling selection synchronization between your editor and preview.
+  - Selecting a paragraph or block of text in your Markdown editor instantly highlights the corresponding section in the preview.
+  - Selecting or highlighting text inside the preview automatically selects the corresponding lines inside your editor and scrolls them smoothly into view.
+- **Visual Selection Highlights**: Rendered highlights on the preview side feature a beautiful theme-matching dashed border and dynamic translucent background matching your active VS Code theme's selection colors.
+- **Smart Deselection**: Simply click anywhere inside the empty workspace of either the editor or the preview panel to instantly clear active highlights and collapse selections on both sides.
+- **Selection Sync Configuration**: Added the `mdViewer.preview.syncSelection` setting under VS Code configuration settings, allowing you to easily toggle bidirectional selection sync on or off.
+
 ## [1.1.3]
 ### Added
 - **LaTeX Math Hardening**: Hardened the inline LaTeX math parser with backslash escape checks and spacing boundaries, preventing false-positive math renderings on currency text (like `$10 and $20`).

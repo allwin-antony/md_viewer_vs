@@ -100,6 +100,13 @@ export function getWebviewContent(
         html { scroll-behavior: smooth; }
         ::selection { background-color: var(--vscode-editor-selectionBackground); }
         .hljs { background: transparent !important; padding: 0 !important; }
+        .selected-highlight {
+            background-color: var(--vscode-editor-selectionHighlightBackground, rgba(128, 128, 128, 0.15)) !important;
+            outline: 2px dashed var(--vscode-focusBorder, rgba(0, 122, 204, 0.5)) !important;
+            outline-offset: 2px;
+            border-radius: 4px;
+            transition: background-color 0.15s ease, outline 0.15s ease;
+        }
 
         /* Premium Alert Callout Blocks */
         .alert-block {
@@ -1069,6 +1076,43 @@ export function getWebviewContent(
                     closestElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     setTimeout(updateScrollSpy, 100);
                 }
+            } else if (message.command === 'selectLines') {
+                const startLine = message.startLine;
+                const endLine = message.endLine;
+                
+                // Clear any existing highlights first
+                document.querySelectorAll('.selected-highlight').forEach(el => {
+                    el.classList.remove('selected-highlight');
+                });
+                
+                if (startLine === -1 || endLine === -1) {
+                    return;
+                }
+                
+                // Find all elements with data-line attributes
+                const elements = Array.from(document.querySelectorAll('[data-line]'))
+                    .map(el => ({
+                        element: el,
+                        line: parseInt(el.getAttribute('data-line'), 10)
+                    }))
+                    .filter(item => !isNaN(item.line))
+                    .sort((a, b) => a.line - b.line);
+                
+                if (elements.length === 0) return;
+                
+                // Calculate span ranges and apply highlight
+                for (let i = 0; i < elements.length; i++) {
+                    const elData = elements[i];
+                    const nextLine = (i + 1 < elements.length) ? elements[i + 1].line : Infinity;
+                    const elEndLine = nextLine - 1;
+                    
+                    // Check if element range [elData.line, elEndLine] overlaps selection [startLine, endLine]
+                    const overlaps = elData.line <= endLine && elEndLine >= startLine;
+                    
+                    if (overlaps) {
+                        elData.element.classList.add('selected-highlight');
+                    }
+                }
             }
         });
 
@@ -1088,6 +1132,67 @@ export function getWebviewContent(
                 }
             }
         });
+
+        // Sync selections back to markdown editor on preview text selection
+        document.addEventListener('selectionchange', () => {
+            if (!isUserInteracting) return;
+            
+            const selection = window.getSelection();
+            if (!selection || selection.isCollapsed) {
+                document.querySelectorAll('.selected-highlight').forEach(el => {
+                    el.classList.remove('selected-highlight');
+                });
+                vscodeApi.postMessage({
+                    command: 'editorSelect',
+                    startLine: -1,
+                    endLine: -1
+                });
+                return;
+            }
+            
+            let startLine = Infinity;
+            let endLine = -Infinity;
+            
+            for (let i = 0; i < selection.rangeCount; i++) {
+                const range = selection.getRangeAt(i);
+                const startEl = findNearestDataLineAncestor(range.startContainer);
+                const endEl = findNearestDataLineAncestor(range.endContainer);
+                
+                if (startEl) {
+                    const line = parseInt(startEl.getAttribute('data-line'), 10);
+                    if (!isNaN(line)) {
+                        startLine = Math.min(startLine, line);
+                        endLine = Math.max(endLine, line);
+                    }
+                }
+                if (endEl) {
+                    const line = parseInt(endEl.getAttribute('data-line'), 10);
+                    if (!isNaN(line)) {
+                        startLine = Math.min(startLine, line);
+                        endLine = Math.max(endLine, line);
+                    }
+                }
+            }
+            
+            if (startLine !== Infinity && endLine !== -Infinity) {
+                vscodeApi.postMessage({
+                    command: 'editorSelect',
+                    startLine: startLine,
+                    endLine: endLine
+                });
+            }
+        });
+
+        function findNearestDataLineAncestor(node) {
+            let current = node;
+            while (current && current !== document.body) {
+                if (current.nodeType === Node.ELEMENT_NODE && current.hasAttribute('data-line')) {
+                    return current;
+                }
+                current = current.parentNode;
+            }
+            return null;
+        }
 
         // Initial render
         renderMathAndMermaid();

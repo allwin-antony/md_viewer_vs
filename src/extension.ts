@@ -171,11 +171,56 @@ export function activate(context: vscode.ExtensionContext) {
     }
   }
 
+  function syncPreviewSelection(editor: vscode.TextEditor | undefined): void {
+    if (!editor || editor.document.languageId !== "markdown") {
+      return;
+    }
+    const uriStr = editor.document.uri.toString();
+    if (!panelMap.has(uriStr)) {
+      return;
+    }
+    const previewPanel = panelMap.get(uriStr)!;
+
+    const config = vscode.workspace.getConfiguration("mdViewer.preview");
+    if (!config.get<boolean>("syncSelection", true)) {
+      return;
+    }
+
+    if (previewPanel.isSyncingSelection) {
+      return;
+    }
+
+    const selection = editor.selection;
+    if (selection.isEmpty) {
+      previewPanel.postMessage({
+        command: "selectLines",
+        startLine: -1,
+        endLine: -1
+      });
+      return;
+    }
+
+    previewPanel.postMessage({
+      command: "selectLines",
+      startLine: selection.start.line,
+      endLine: selection.end.line
+    });
+  }
+
   // Listeners mapping for Scroll Sync & Status Bar
   vscode.window.onDidChangeActiveTextEditor(
     (editor) => {
       updateStatusBarItem();
       syncPreviewScroll(editor);
+      syncPreviewSelection(editor);
+    },
+    null,
+    context.subscriptions
+  );
+
+  vscode.window.onDidChangeTextEditorSelection(
+    (e) => {
+      syncPreviewSelection(e.textEditor);
     },
     null,
     context.subscriptions
