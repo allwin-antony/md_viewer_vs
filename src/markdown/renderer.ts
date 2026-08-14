@@ -11,6 +11,7 @@ const hljs = require("highlight.js");
 export class MarkdownRenderer {
   private md: any;
   private alertStack: string[] = [];
+  private currentSlugs: Map<string, number> = new Map();
 
   constructor() {
     this.md = new MarkdownIt({
@@ -54,7 +55,7 @@ export class MarkdownRenderer {
     this.md.inline.ruler.before("escape", "math_inline", this.mathInlineRule);
     this.md.block.ruler.before("fence", "math_block", this.mathBlockRule.bind(this));
 
-    // 3. Custom Heading Open (IDs for TOC link spy)
+    // 3. Custom Heading Open (IDs for TOC link spy & unique anchors)
     this.md.renderer.rules.heading_open = (
       tokens: any[],
       idx: number,
@@ -69,7 +70,14 @@ export class MarkdownRenderer {
           .filter((t: any) => t.type === "text" || t.type === "code_inline")
           .map((t: any) => t.content)
           .join("");
-        token.attrSet("id", this.slugify(text));
+        const baseSlug = this.slugify(text) || "section";
+        const slugs: Map<string, number> =
+          (env && env.slugs) || this.currentSlugs;
+        const count = slugs.get(baseSlug) || 0;
+        slugs.set(baseSlug, count + 1);
+
+        const uniqueId = count === 0 ? baseSlug : `${baseSlug}-${count}`;
+        token.attrSet("id", uniqueId);
       }
       return self.renderToken(tokens, idx, options);
     };
@@ -429,7 +437,9 @@ export class MarkdownRenderer {
     webview: vscode.Webview,
     imageCache: Map<string, string>
   ): string {
-    let rendered = this.md.render(text);
+    this.currentSlugs.clear();
+    const env: any = { slugs: this.currentSlugs };
+    let rendered = this.md.render(text, env);
     rendered = this.resolveLocalImages(rendered, docDir, webview, imageCache);
     rendered = this.resolveYouTubeEmbeds(rendered);
     return rendered;

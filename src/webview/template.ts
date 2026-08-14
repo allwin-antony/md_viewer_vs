@@ -607,22 +607,52 @@ export function getWebviewContent(
             animation: spin-loader 0.75s linear infinite;
         }
 
+        /* Target Heading Pulse on Jump */
+        @keyframes headingTargetPulse {
+            0% {
+                background-color: var(--vscode-editor-selectionHighlightBackground, rgba(0, 122, 204, 0.25));
+                outline: 2px solid var(--vscode-focusBorder, #007acc);
+                outline-offset: 4px;
+                border-radius: 4px;
+            }
+            60% {
+                background-color: var(--vscode-editor-selectionHighlightBackground, rgba(0, 122, 204, 0.2));
+                outline: 2px solid var(--vscode-focusBorder, #007acc);
+                outline-offset: 4px;
+                border-radius: 4px;
+            }
+            100% {
+                background-color: transparent;
+                outline: 2px solid transparent;
+                outline-offset: 4px;
+            }
+        }
+        .heading-target-pulse {
+            animation: headingTargetPulse 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
         /* TOC inside minimap */
         .minimap-toc-item {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 6px 10px;
             color: var(--vscode-editor-foreground);
-            opacity: 0.6;
+            opacity: 0.65;
             font-size: 11.5px;
             border-radius: 4px;
             transition: all 0.15s ease;
             margin-bottom: 2px;
             cursor: pointer;
+            border-left: 2px solid transparent;
+            text-decoration: none !important;
+            gap: 6px;
+        }
+        .minimap-toc-item .toc-text {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            border-left: 2px solid transparent;
-            text-decoration: none !important;
+            flex: 1;
         }
         .minimap-toc-item:hover {
             opacity: 0.95;
@@ -634,6 +664,20 @@ export function getWebviewContent(
             color: var(--vscode-textLink-foreground, #007acc);
             background: rgba(128, 128, 128, 0.05);
             border-left-color: var(--vscode-textLink-foreground, #007acc);
+        }
+        .toc-badge {
+            font-size: 9.5px;
+            font-weight: 600;
+            padding: 1px 5px;
+            border-radius: 8px;
+            background: rgba(128, 128, 128, 0.18);
+            color: var(--vscode-descriptionForeground, rgba(255, 255, 255, 0.65));
+            line-height: 1.2;
+            flex-shrink: 0;
+        }
+        .minimap-toc-item.active .toc-badge {
+            background: var(--vscode-textLink-foreground, #007acc);
+            color: #ffffff;
         }
         .toc-h1 { padding-left: 8px; }
         .toc-h2 { padding-left: 18px; }
@@ -912,16 +956,50 @@ export function getWebviewContent(
                 return;
             }
 
+            // Count occurrences of each heading title to identify duplicates
+            const textCounts = new Map();
+            headings.forEach(h => {
+                const t = (h.textContent || '').trim();
+                textCounts.set(t, (textCounts.get(t) || 0) + 1);
+            });
+
+            const textOccurrences = new Map();
+            const slugCounts = new Map();
+
             tocList.innerHTML = headings.map(function(heading) {
+                var rawText = (heading.textContent || '').trim();
                 var id = heading.getAttribute('id');
                 if (!id) {
-                    var text = heading.textContent || '';
-                    id = text.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '');
+                    var baseSlug = rawText.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]+/g, '') || 'section';
+                    var sc = slugCounts.get(baseSlug) || 0;
+                    slugCounts.set(baseSlug, sc + 1);
+                    id = sc === 0 ? baseSlug : baseSlug + '-' + sc;
                     heading.setAttribute('id', id);
                 }
-                var text = heading.textContent || '';
+
+                var totalMatches = textCounts.get(rawText) || 1;
+                var currentIdx = (textOccurrences.get(rawText) || 0) + 1;
+                textOccurrences.set(rawText, currentIdx);
+
+                var badgeHtml = '';
+                var lineAttr = heading.getAttribute('data-line');
+                var lineInfo = lineAttr ? ' (Line ' + (parseInt(lineAttr, 10) + 1) + ')' : '';
+                var titleTooltip = rawText;
+
+                if (totalMatches > 1) {
+                    badgeHtml = '<span class="toc-badge">#' + currentIdx + '</span>';
+                    titleTooltip = rawText + ' [Section #' + currentIdx + ' of ' + totalMatches + ']' + lineInfo;
+                } else if (lineInfo) {
+                    titleTooltip = rawText + lineInfo;
+                }
+
                 var level = heading.tagName.toLowerCase(); // h1, h2, h3, h4
-                return '<a href="#' + id + '" class="minimap-toc-item toc-' + level + '" data-id="' + id + '">' + text + '</a>';
+                var safeTooltip = titleTooltip.replace(/"/g, '&quot;');
+                var safeText = rawText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                return '<a href="#' + id + '" class="minimap-toc-item toc-' + level + '" data-id="' + id + '" title="' + safeTooltip + '">' + 
+                       '<span class="toc-text">' + safeText + '</span>' + badgeHtml + 
+                       '</a>';
             }).join('');
 
             tocList.querySelectorAll('.minimap-toc-item').forEach(item => {
@@ -931,6 +1009,12 @@ export function getWebviewContent(
                     const targetEl = document.getElementById(targetId);
                     if (targetEl) {
                         targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        targetEl.classList.remove('heading-target-pulse');
+                        void targetEl.offsetWidth; // Force DOM reflow to restart CSS animation
+                        targetEl.classList.add('heading-target-pulse');
+                        setTimeout(() => {
+                            targetEl.classList.remove('heading-target-pulse');
+                        }, 1300);
                     }
                 });
             });
