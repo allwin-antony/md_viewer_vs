@@ -56,6 +56,14 @@ All rendered markdown images (excluding emojis, alert icons, and linked badges) 
 * **Typo Resilience:** The parser automatically sanitizes common typing habits by stripping trailing semicolons on diagram type declaration lines (e.g. `graph TD;` -> `graph TD`), preventing parser syntax errors.
 * **UML & Sequence Translators:** Automatically parses `wsd`, `websequence`, `sequence`, `uml`, and `plantuml` blocks, translating them into native Mermaid sequence charts for a seamless viewing experience.
 
+### 📑 Intelligent Sidebar Minimap & Duplicate Heading Navigation
+The collapsible Table of Contents outline panel provides deep structural visibility:
+* **Duplicate Heading Deduplication:** Assigns deterministic, standard GitHub-compatible anchor IDs (`overview`, `overview-1`, `overview-2`), resolving DOM collisions.
+* **Occurrence Badges:** Identical heading titles automatically display subtle occurrence tags (`#1`, `#2`, `#3`) in the sidebar minimap.
+* **Contextual Tooltips:** Hovering over any TOC entry displays section hierarchy, occurrence count, and exact source line numbers.
+* **Glow Pulse on Jump:** Clicking any TOC link smoothly scrolls to the exact heading and flashes a gentle accent glow animation (`heading-target-pulse`) for instant orientation.
+* **Pinpoint ScrollSpy:** As you scroll through the document, the TOC sidebar tracks and highlights strictly the currently visible occurrence.
+
 ### 🗂️ Smart Split Panel Layout Management
 The extension maintains a highly polished, non-cluttering workspace by dynamically tracking active editor columns:
 * **Anti-Clutter Capping:** Spawning previews will **never** create a new right column (Column 4, etc.), keeping your workbench perfectly clean.

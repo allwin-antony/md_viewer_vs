@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.5]
+### Added
+- **Unique Heading Slug Deduplication**: Standard GitHub-compatible slug deduplication (`overview`, `overview-1`, `overview-2`) prevents DOM ID collisions and ensures internal anchor links jump to the exact heading occurrence.
+- **Intelligent Sidebar Minimap & TOC**:
+  - **Duplicate Occurrence Badges**: Headings sharing identical titles automatically display subtle, modern occurrence indicator badges (`#1`, `#2`, `#3`) in the TOC minimap.
+  - **Contextual Tooltips**: Hovering over duplicate headings displays rich metadata, including occurrence index, total occurrences, and source line number (e.g. `Overview [Section #2 of 3] (Line 45)`).
+  - **Target Jump Flash Animation**: Clicking any heading in the TOC smoothly scrolls to the exact section and triggers an accent glow pulse animation (`@keyframes headingTargetPulse`) for immediate visual feedback.
+  - **Pinpoint ScrollSpy**: As you scroll through the document, the active TOC tracker highlights strictly the individual visible occurrence.
+
 ## [1.1.4]
 ### Added
 - **Bidirectional Selection Sync**: Enjoy seamless, native-feeling selection synchronization between your editor and preview.
