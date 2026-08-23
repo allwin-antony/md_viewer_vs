@@ -334,6 +334,36 @@ export function activate(context: vscode.ExtensionContext) {
     exportPdfCommand,
     exportHtmlCommand
   );
+
+  // Return Public API for other extensions / AI agents
+  return {
+    exportPdf: async (uri?: vscode.Uri | string, targetPath?: string | vscode.Uri): Promise<string | undefined> => {
+      let docUri: vscode.Uri | undefined;
+      if (typeof uri === "string") {
+        docUri = vscode.Uri.file(uri);
+      } else if (uri instanceof vscode.Uri) {
+        docUri = uri;
+      } else {
+        docUri = vscode.window.activeTextEditor?.document.uri;
+      }
+      if (!docUri) return undefined;
+      const doc = await vscode.workspace.openTextDocument(docUri);
+      return await exportDocumentToPdf(doc, context, renderer, targetPath);
+    },
+    exportHtml: async (uri?: vscode.Uri | string, targetPath?: string | vscode.Uri): Promise<string | undefined> => {
+      let docUri: vscode.Uri | undefined;
+      if (typeof uri === "string") {
+        docUri = vscode.Uri.file(uri);
+      } else if (uri instanceof vscode.Uri) {
+        docUri = uri;
+      } else {
+        docUri = vscode.window.activeTextEditor?.document.uri;
+      }
+      if (!docUri) return undefined;
+      const doc = await vscode.workspace.openTextDocument(docUri);
+      return await exportDocumentToHtml(doc, context, renderer, targetPath);
+    }
+  };
 }
 
 export function deactivate() {}
