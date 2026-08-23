@@ -45,6 +45,27 @@ Export your documents instantly using the download icons in the Outline sidebar:
 * **PDF Exporter (Publication-Grade):** Headless Google Chrome, Chromium, or Microsoft Edge prints publication-ready PDF documents locally. All local images (relative paths, Windows absolute paths, Linux absolute paths, and `file:///` URIs) are dynamically converted into self-contained **Base64 Data URIs** (`data:image/...;base64,...`), guaranteeing 100% synchronous rendering with zero missing images. Enhanced with print-specific CSS rules (`page-break-inside: avoid`, responsive scaling) to prevent images from clipping across page boundaries. Includes smart path heuristics for Linux (fully compatible with sandboxed Snap & Flatpak environments) and interactive settings troubleshooting if no local browser executable is detected.
 * **HTML Exporter:** Packages all custom preview styles, KaTeX formulas, and Highlight.js code themes, and converts all local images (relative, absolute, and `file:///` URIs across formats: PNG, JPG, SVG, WebP, GIF, BMP, ICO, TIFF, AVIF) into Base64 data-URIs. All interactive sidebar controls are cleanly stripped out, producing a single, highly portable, 100% self-contained `.html` file.
 
+### 🤖 Programmatic & AI Agent Automation
+AI agents (such as Google Antigravity), tasks, and extensions can trigger exports programmatically without any interactive UI dialogs:
+
+```typescript
+// Export to PDF programmatically:
+await vscode.commands.executeCommand(
+  "mdViewer.exportPdf",
+  vscode.Uri.file("/path/to/document.md"),  // Input Markdown file
+  "/path/to/output.pdf"                    // (Optional) Target PDF path
+);
+
+// Export to Standalone HTML programmatically:
+await vscode.commands.executeCommand(
+  "mdViewer.exportHtml",
+  vscode.Uri.file("/path/to/document.md"),  // Input Markdown file
+  "/path/to/output.html"                   // (Optional) Target HTML path
+);
+```
+* **Bypasses GUI File Pickers:** Supplying the target output path skips the Windows/Linux save file dialog and executes headlessly in the background.
+* **Returns Generated Path:** Returns a `Promise<string>` resolving directly to the created file's absolute path.
+
 ### 📋 Hover "Copy Code" Utility
 Subtle clipboard copy buttons fade in at the top-right of every fenced pre/code block. Clicking a button runs a secure clipboard copy operation and animates the icon into a checkmark with a temporary green micro-animation.
 

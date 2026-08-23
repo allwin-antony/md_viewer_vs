@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0]
+### Added
+- **Programmatic & AI Agent Export Automation**:
+  - **`mdViewer.exportPdf` Command**: Dedicated VS Code command callable by AI agents (e.g., Google Antigravity), background tasks, or scripts via `vscode.commands.executeCommand('mdViewer.exportPdf', mdUri, targetPdfPath)`.
+  - **`mdViewer.exportHtml` Command**: Dedicated VS Code command for standalone HTML export via `vscode.commands.executeCommand('mdViewer.exportHtml', mdUri, targetHtmlPath)`.
+  - **Headless Background Export**: Supplying an output path skips interactive GUI save dialogs and generates the PDF/HTML headlessly in the background.
+  - **Command Palette & Context Menu**: Easily trigger exports from the VS Code Command Palette or by right-clicking any `.md` file in the File Explorer.
+
 ## [1.1.6]
 ### Added
 - **Cross-Platform Image Export (PDF & Standalone HTML)**:

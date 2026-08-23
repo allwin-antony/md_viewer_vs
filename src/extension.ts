@@ -3,6 +3,8 @@ import * as path from "path";
 import * as fs from "fs";
 import { MarkdownRenderer } from "./markdown/renderer";
 import { MarkdownPreviewPanel } from "./webview/panel";
+import { exportDocumentToPdf } from "./utils/pdf";
+import { exportDocumentToHtml } from "./utils/html";
 
 export function activate(context: vscode.ExtensionContext) {
   const renderer = new MarkdownRenderer();
@@ -123,6 +125,52 @@ export function activate(context: vscode.ExtensionContext) {
           showPreview(editor.document.uri);
         }
       }
+    }
+  );
+
+  // Export to PDF Command (Programmatically callable by AI or interactive)
+  const exportPdfCommand = vscode.commands.registerCommand(
+    "mdViewer.exportPdf",
+    async (uri?: vscode.Uri | string, targetPath?: string | vscode.Uri) => {
+      let docUri: vscode.Uri | undefined;
+      if (typeof uri === "string") {
+        docUri = vscode.Uri.file(uri);
+      } else if (uri instanceof vscode.Uri) {
+        docUri = uri;
+      } else {
+        docUri = vscode.window.activeTextEditor?.document.uri;
+      }
+
+      if (!docUri) {
+        vscode.window.showErrorMessage("No active Markdown document to export to PDF.");
+        return undefined;
+      }
+
+      const doc = await vscode.workspace.openTextDocument(docUri);
+      return await exportDocumentToPdf(doc, context, renderer, targetPath);
+    }
+  );
+
+  // Export to Standalone HTML Command (Programmatically callable by AI or interactive)
+  const exportHtmlCommand = vscode.commands.registerCommand(
+    "mdViewer.exportHtml",
+    async (uri?: vscode.Uri | string, targetPath?: string | vscode.Uri) => {
+      let docUri: vscode.Uri | undefined;
+      if (typeof uri === "string") {
+        docUri = vscode.Uri.file(uri);
+      } else if (uri instanceof vscode.Uri) {
+        docUri = uri;
+      } else {
+        docUri = vscode.window.activeTextEditor?.document.uri;
+      }
+
+      if (!docUri) {
+        vscode.window.showErrorMessage("No active Markdown document to export to HTML.");
+        return undefined;
+      }
+
+      const doc = await vscode.workspace.openTextDocument(docUri);
+      return await exportDocumentToHtml(doc, context, renderer, targetPath);
     }
   );
 
@@ -280,7 +328,12 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions
   );
 
-  context.subscriptions.push(toggleCommand, viewPreviewCommand);
+  context.subscriptions.push(
+    toggleCommand,
+    viewPreviewCommand,
+    exportPdfCommand,
+    exportHtmlCommand
+  );
 }
 
 export function deactivate() {}

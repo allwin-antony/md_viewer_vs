@@ -86,6 +86,8 @@ export function findChromePath(): string {
   return platform === "win32" ? "chrome.exe" : "google-chrome";
 }
 
+import { generateExportHtml } from "./html";
+
 /**
  * Runs Google Chrome in headless mode to render an HTML file directly to PDF.
  */
@@ -105,4 +107,67 @@ export function exportToPdf(
       }
     });
   });
+}
+
+/**
+ * Programmatically exports a Markdown document to PDF.
+ * If targetPath is provided (by AI or script), skips GUI save dialog.
+ * Returns the output PDF path string, or undefined if cancelled.
+ */
+export async function exportDocumentToPdf(
+  doc: vscode.TextDocument,
+  context: vscode.ExtensionContext,
+  renderer: { renderHeadless: (text: string, docDir: string, cache: Map<string, string>) => string },
+  targetPath?: string | vscode.Uri
+): Promise<string | undefined> {
+  const docDir = path.dirname(doc.uri.fsPath);
+  const defaultName = path.basename(doc.uri.fsPath, path.extname(doc.uri.fsPath)) + ".pdf";
+
+  let finalPdfPath: string;
+  if (targetPath) {
+    finalPdfPath = typeof targetPath === "string" ? targetPath : targetPath.fsPath;
+  } else {
+    const saveOptions: vscode.SaveDialogOptions = {
+      defaultUri: vscode.Uri.file(path.join(docDir, defaultName)),
+      filters: { "PDF Files": ["pdf"] },
+      title: "Export to PDF",
+    };
+    const fileUri = await vscode.window.showSaveDialog(saveOptions);
+    if (!fileUri) return undefined;
+    finalPdfPath = fileUri.fsPath;
+  }
+
+  const imageCache = new Map<string, string>();
+  const bodyHtml = renderer.renderHeadless(doc.getText(), docDir, imageCache);
+  const fullHtml = generateExportHtml(bodyHtml, docDir, context.extensionPath, imageCache, true);
+
+  const tempHtmlPath = path.join(docDir, `temp_preview_${Date.now()}.html`);
+  try {
+    fs.writeFileSync(tempHtmlPath, fullHtml, "utf8");
+    const chromeExecutable = findChromePath();
+    await exportToPdf(chromeExecutable, tempHtmlPath, finalPdfPath);
+    vscode.window.showInformationMessage(`PDF successfully exported to: ${path.basename(finalPdfPath)}`);
+    return finalPdfPath;
+  } catch (err: any) {
+    const isNotFoundError =
+      err.message.includes("ENOENT") ||
+      err.message.includes("not found") ||
+      err.message.includes("is not recognized");
+    let errorMsg = `Failed to export PDF: ${err.message}`;
+    if (isNotFoundError) {
+      errorMsg = `Failed to export PDF: Google Chrome or Chromium executable could not be found. Please configure mdViewer.chromePath in settings.`;
+    }
+    vscode.window.showErrorMessage(errorMsg, "Configure Chrome Path").then((selection) => {
+      if (selection === "Configure Chrome Path") {
+        vscode.commands.executeCommand("workbench.action.openSettings", "mdViewer.chromePath");
+      }
+    });
+    throw err;
+  } finally {
+    if (fs.existsSync(tempHtmlPath)) {
+      try {
+        fs.unlinkSync(tempHtmlPath);
+      } catch (_) {}
+    }
+  }
 }

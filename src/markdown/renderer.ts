@@ -566,4 +566,31 @@ export class MarkdownRenderer {
     rendered = this.resolveYouTubeEmbeds(rendered);
     return rendered;
   }
+
+  // --- Headless compile interface (for background AI / script exports) ---
+  public renderHeadless(
+    text: string,
+    docDir: string,
+    imageCache: Map<string, string>
+  ): string {
+    this.currentSlugs.clear();
+    const env: any = { slugs: this.currentSlugs };
+    const normalizedText = this.normalizeMarkdownImagePaths(text);
+    let rendered = this.md.render(normalizedText, env);
+    rendered = rendered.replace(
+      /<img\s+([^>]*?)src=(["'])([^"']+)\2([^>]*?)>/gi,
+      (match: string, pre: string, quote: string, src: string, post: string) => {
+        if (/^(https?:|\/\/|data:)/i.test(src)) return match;
+        const absPath = resolveImagePath(src, docDir);
+        if (absPath && fs.existsSync(absPath)) {
+          imageCache.set(src, absPath);
+          imageCache.set(absPath, absPath);
+          return `<img ${pre}src="${absPath}"${post}>`;
+        }
+        return match;
+      }
+    );
+    rendered = this.resolveYouTubeEmbeds(rendered);
+    return rendered;
+  }
 }

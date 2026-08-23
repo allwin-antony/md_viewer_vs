@@ -3,7 +3,7 @@
   "displayName": "Markdown Previewer Pro",
   "description": "Advanced Markdown viewer with LaTeX, Mermaid diagrams, syntax highlighting, and rich formatting support",
   "publisher": "allwin-antony",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "icon": "assets/icon.png",
   "galleryBanner": {
     "color": "#1e1e1e",
@@ -74,6 +74,16 @@
         "command": "mdViewer.viewPreview",
         "title": "View Preview",
         "icon": "$(eye)"
+      },
+      {
+        "command": "mdViewer.exportPdf",
+        "title": "Export Markdown to PDF",
+        "icon": "$(file-pdf)"
+      },
+      {
+        "command": "mdViewer.exportHtml",
+        "title": "Export Markdown to Standalone HTML",
+        "icon": "$(file-code)"
       }
     ],
     "menus": {
@@ -94,6 +104,16 @@
           "command": "mdViewer.viewPreview",
           "when": "resourceLangId == markdown",
           "group": "navigation"
+        },
+        {
+          "command": "mdViewer.exportPdf",
+          "when": "resourceLangId == markdown",
+          "group": "export@1"
+        },
+        {
+          "command": "mdViewer.exportHtml",
+          "when": "resourceLangId == markdown",
+          "group": "export@2"
         }
       ]
     }
