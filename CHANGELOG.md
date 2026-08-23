@@ -1,12 +1,7 @@
 # Changelog
 
-## [1.2.0]
+## [1.2.1]
 ### Added
-- **Programmatic & AI Agent Export Automation**:
-  - **`mdViewer.exportPdf` Command**: Dedicated VS Code command callable by AI agents (e.g., Google Antigravity), background tasks, or scripts via `vscode.commands.executeCommand('mdViewer.exportPdf', mdUri, targetPdfPath)`.
-  - **`mdViewer.exportHtml` Command**: Dedicated VS Code command for standalone HTML export via `vscode.commands.executeCommand('mdViewer.exportHtml', mdUri, targetHtmlPath)`.
-  - **Headless Background Export**: Supplying an output path skips interactive GUI save dialogs and generates the PDF/HTML headlessly in the background.
-  - **Command Palette & Context Menu**: Easily trigger exports from the VS Code Command Palette or by right-clicking any `.md` file in the File Explorer.
 - **Dynamic JS & Mermaid Wait Hook**:
   - **Headless Render Synchronization**: Injected `--run-all-compositor-stages-before-draw` and `--virtual-time-budget=2000` into headless Chrome/Chromium to give asynchronous JavaScript (KaTeX formulas, Mermaid vector diagrams) full time to compute layout and render before the PDF snapshot is captured.
   - **Asynchronous Callback Hooks**: Added `mermaid.run()` completion callbacks and `DOMContentLoaded` listeners setting `document.body.dataset.rendered = "true"`.
@@ -15,6 +10,16 @@
   - **Page Orientation (`mdViewer.pdf.orientation`)**: Choose between `portrait` (default) and `landscape`.
   - **Custom Page Margins (`mdViewer.pdf.margins`)**: Configurable presets for `normal` (15mm), `compact` (8mm), `academic` (1 inch / 25.4mm), and `none` (0mm).
   - **Header & Footer Toggle (`mdViewer.pdf.headerFooter`)**: Option to include or suppress default browser page numbers and generation dates.
+- **Public Extension API**:
+  - Exported `exportPdf` and `exportHtml` directly from `activate()`, allowing other VS Code extensions and AI tools to interface via `vscode.extensions.getExtension('allwin-antony.md-viewer')?.exports`.
+
+## [1.2.0]
+### Added
+- **Programmatic & AI Agent Export Automation**:
+  - **`mdViewer.exportPdf` Command**: Dedicated VS Code command callable by AI agents (e.g., Google Antigravity), background tasks, or scripts via `vscode.commands.executeCommand('mdViewer.exportPdf', mdUri, targetPdfPath)`.
+  - **`mdViewer.exportHtml` Command**: Dedicated VS Code command for standalone HTML export via `vscode.commands.executeCommand('mdViewer.exportHtml', mdUri, targetHtmlPath)`.
+  - **Headless Background Export**: Supplying an output path skips interactive GUI save dialogs and generates the PDF/HTML headlessly in the background.
+  - **Command Palette & Context Menu**: Easily trigger exports from the VS Code Command Palette or by right-clicking any `.md` file in the File Explorer.
 
 ## [1.1.6]
 ### Added
