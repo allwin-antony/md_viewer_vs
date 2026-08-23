@@ -40,10 +40,10 @@ Standard blockquotes starting with alert syntax are rendered as premium, visuall
 * `> [!WARNING]` — Energetic amber warning notice.
 * `> [!CAUTION]` — High-contrast red high-risk warning.
 
-### 💾 Standalone HTML & PDF Exporters
+### 💾 Standalone HTML & PDF Exporters (Universal Image Support)
 Export your documents instantly using the download icons in the Outline sidebar:
-* **HTML Exporter:** Packages all custom preview styles, KaTeX formulas, Highlight.js code themes, and dynamically converts all local relative images into Base64 data-URIs. All interactive sidebar controls are stripped out using robust HTML comment boundary markers, producing a single, highly portable, self-contained `.html` file.
-* **PDF Exporter:** Headless Chrome or Chromium prints publication-ready PDF documents locally. Includes smart path heuristics for Linux (fully compatible with sandboxed Snap & Flatpak environments) and provides direct settings link troubleshooting if no local browser executable is detected.
+* **PDF Exporter (Publication-Grade):** Headless Google Chrome, Chromium, or Microsoft Edge prints publication-ready PDF documents locally. All local images (relative paths, Windows absolute paths, Linux absolute paths, and `file:///` URIs) are dynamically converted into self-contained **Base64 Data URIs** (`data:image/...;base64,...`), guaranteeing 100% synchronous rendering with zero missing images. Enhanced with print-specific CSS rules (`page-break-inside: avoid`, responsive scaling) to prevent images from clipping across page boundaries. Includes smart path heuristics for Linux (fully compatible with sandboxed Snap & Flatpak environments) and interactive settings troubleshooting if no local browser executable is detected.
+* **HTML Exporter:** Packages all custom preview styles, KaTeX formulas, and Highlight.js code themes, and converts all local images (relative, absolute, and `file:///` URIs across formats: PNG, JPG, SVG, WebP, GIF, BMP, ICO, TIFF, AVIF) into Base64 data-URIs. All interactive sidebar controls are cleanly stripped out, producing a single, highly portable, 100% self-contained `.html` file.
 
 ### 📋 Hover "Copy Code" Utility
 Subtle clipboard copy buttons fade in at the top-right of every fenced pre/code block. Clicking a button runs a secure clipboard copy operation and animates the icon into a checkmark with a temporary green micro-animation.

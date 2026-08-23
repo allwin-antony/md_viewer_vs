@@ -457,8 +457,11 @@ export function getWebviewContent(
         body.pdf-exporting img {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            max-height: 450px !important;
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: 650px !important;
             object-fit: contain !important;
+            display: inline-block;
         }
         body.pdf-exporting table {
             page-break-inside: avoid !important;

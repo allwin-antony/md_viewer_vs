@@ -95,7 +95,7 @@ export function exportToPdf(
   targetPdfPath: string
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    const chromeCmd = `"${chromeExecutable}" --headless --disable-gpu --no-sandbox --no-pdf-header-footer --print-to-pdf="${targetPdfPath}" "${tempHtmlPath}"`;
+    const chromeCmd = `"${chromeExecutable}" --headless --disable-gpu --no-sandbox --allow-file-access-from-files --enable-local-file-accesses --no-pdf-header-footer --print-to-pdf="${targetPdfPath}" "${tempHtmlPath}"`;
 
     cp.exec(chromeCmd, (error, stdout, stderr) => {
       if (error) {

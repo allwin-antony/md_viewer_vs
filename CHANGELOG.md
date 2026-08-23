@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.6]
+### Added
+- **Cross-Platform Image Export (PDF & Standalone HTML)**:
+  - **Base64 Data URI Inlining**: Converted all local image paths to self-contained Base64 Data URIs (`data:image/...;base64,...`) during PDF export and standalone HTML export, ensuring 100% synchronous rendering in headless Chrome/Chromium without missing or dropped images.
+  - **Universal Path Support**: Added comprehensive path resolution supporting relative paths (`./images/img.png`, `..\assets\img.png`), Windows absolute paths (`C:\...`, `C:/...`), Linux absolute paths (`/...`), `file:///` URIs, and paths with spaces/URL encodings (`%20`).
+  - **Broad Format Support**: Full support for `.png`, `.jpg`/`.jpeg`, `.gif`, `.svg`, `.webp`, `.bmp`, `.ico`, `.tiff`, and `.avif`.
+  - **Webview Drive Roots & Linux Root Access**: Configured `localResourceRoots` to grant webview permission to load local images across all Windows drive letters (`C:\`, `D:\`, etc.) and Linux root (`/`).
+  - **Print CSS Image Optimization**: Added `page-break-inside: avoid`, `max-width: 100%`, and `height: auto` constraints to ensure images display clearly without page-boundary clipping or layout distortion.
+
 ## [1.1.5]
 ### Added
 - **Unique Heading Slug Deduplication**: Standard GitHub-compatible slug deduplication (`overview`, `overview-1`, `overview-2`) prevents DOM ID collisions and ensures internal anchor links jump to the exact heading occurrence.

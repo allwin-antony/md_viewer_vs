@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
+import * as fs from "fs";
 import { MarkdownRenderer } from "./markdown/renderer";
 import { MarkdownPreviewPanel } from "./webview/panel";
 
@@ -41,6 +42,28 @@ export function activate(context: vscode.ExtensionContext) {
     const docDir = path.dirname(uri.fsPath);
     const fileName = path.basename(uri.fsPath);
 
+    const resourceRoots: vscode.Uri[] = [
+      vscode.Uri.file(context.extensionPath),
+      vscode.Uri.file(docDir),
+      vscode.Uri.file(path.join(docDir, "..")),
+      ...(vscode.workspace.workspaceFolders?.map((f) => f.uri) || []),
+    ];
+
+    if (process.platform === "win32") {
+      const docRoot = path.parse(docDir).root;
+      if (docRoot && fs.existsSync(docRoot)) {
+        resourceRoots.push(vscode.Uri.file(docRoot));
+      }
+      for (const drive of ["C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]) {
+        const drivePath = `${drive}:\\`;
+        if (fs.existsSync(drivePath)) {
+          resourceRoots.push(vscode.Uri.file(drivePath));
+        }
+      }
+    } else {
+      resourceRoots.push(vscode.Uri.file("/"));
+    }
+
     const panel = vscode.window.createWebviewPanel(
       MarkdownPreviewPanel.viewType,
       "Preview: " + fileName,
@@ -48,12 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
       {
         enableScripts: true,
         retainContextWhenHidden: false,
-        localResourceRoots: [
-          vscode.Uri.file(docDir),
-          vscode.Uri.file(context.extensionPath), // Crucial for loading local offline resources
-          ...(vscode.workspace.workspaceFolders?.map((f) => f.uri) || []),
-          vscode.Uri.file(path.join(docDir, "..")),
-        ],
+        localResourceRoots: resourceRoots,
       }
     );
 

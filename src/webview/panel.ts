@@ -5,7 +5,7 @@ import * as crypto from "crypto";
 import { MarkdownRenderer } from "../markdown/renderer";
 import { getWebviewContent } from "./template";
 import { findChromePath, exportToPdf } from "../utils/pdf";
-import { exportStandaloneHtml } from "../utils/html";
+import { exportStandaloneHtml, inlineLocalImages } from "../utils/html";
 
 export class MarkdownPreviewPanel {
   public static readonly viewType = "mdViewer";
@@ -216,12 +216,8 @@ export class MarkdownPreviewPanel {
     let finalHtml = rawHtml;
     const docDir = path.dirname(this.doc.uri.fsPath);
 
-    // Revert Webview sandbox URIs back to native file:/// absolute filesystem paths
-    for (const [key, webviewUri] of this.imageCache.entries()) {
-      const absolutePath = key.split("|")[1];
-      const fileUri = vscode.Uri.file(absolutePath).toString();
-      finalHtml = finalHtml.split(webviewUri).join(fileUri);
-    }
+    // Convert all local images (both cached Webview URIs and raw paths) directly to Base64 Data URIs
+    finalHtml = inlineLocalImages(finalHtml, this.imageCache, docDir);
 
     // Inject class directly into body tag
     finalHtml = finalHtml.replace(

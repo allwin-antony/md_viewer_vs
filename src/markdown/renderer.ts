@@ -8,6 +8,95 @@ const markdownItTaskLists = require("markdown-it-task-lists");
 const markdownItEmoji = require("markdown-it-emoji");
 const hljs = require("highlight.js");
 
+export function resolveImagePath(rawSrc: string, docDir: string): string | null {
+  if (!rawSrc) return null;
+  if (/^(https?:|\/\/|data:|vscode-resource:|vscode-webview:)/i.test(rawSrc)) {
+    return null;
+  }
+
+  let cleanSrc = rawSrc.trim();
+
+  // 1. Handle file:// protocol
+  if (/^file:\/\//i.test(cleanSrc)) {
+    try {
+      cleanSrc = decodeURIComponent(cleanSrc);
+    } catch (_) {}
+
+    cleanSrc = cleanSrc.replace(/^file:\/+/i, "");
+
+    if (process.platform === "win32") {
+      cleanSrc = cleanSrc.replace(/^\/([a-zA-Z]:)/, "$1");
+    } else {
+      if (!cleanSrc.startsWith("/")) {
+        cleanSrc = "/" + cleanSrc;
+      }
+    }
+  } else {
+    try {
+      cleanSrc = decodeURIComponent(cleanSrc);
+    } catch (_) {}
+  }
+
+  // 2. Strip query string and fragment
+  const queryIdx = cleanSrc.indexOf("?");
+  if (queryIdx !== -1) {
+    cleanSrc = cleanSrc.substring(0, queryIdx);
+  }
+  const hashIdx = cleanSrc.indexOf("#");
+  if (hashIdx !== -1) {
+    cleanSrc = cleanSrc.substring(0, hashIdx);
+  }
+
+  // 3. Trim enclosing angle brackets or quotes
+  cleanSrc = cleanSrc.replace(/^<|>$/g, "").replace(/^["']|["']$/g, "").trim();
+
+  // 4. Normalize slashes for Linux/macOS
+  if (process.platform !== "win32") {
+    cleanSrc = cleanSrc.replace(/\\/g, "/");
+  }
+
+  // 5. Determine if path is absolute
+  const isWinAbsolute = /^[a-zA-Z]:[/\\]/.test(cleanSrc);
+  const isUnixAbsolute = cleanSrc.startsWith("/");
+
+  let resolvedPath: string;
+  if (isWinAbsolute || (process.platform === "win32" && path.isAbsolute(cleanSrc)) || isUnixAbsolute) {
+    resolvedPath = path.normalize(cleanSrc);
+  } else {
+    resolvedPath = path.resolve(docDir, cleanSrc);
+  }
+
+  return resolvedPath;
+}
+
+export function getMimeType(filePath: string): string {
+  const ext = path.extname(filePath).toLowerCase();
+  switch (ext) {
+    case ".jpg":
+    case ".jpeg":
+      return "image/jpeg";
+    case ".png":
+      return "image/png";
+    case ".gif":
+      return "image/gif";
+    case ".svg":
+      return "image/svg+xml";
+    case ".webp":
+      return "image/webp";
+    case ".bmp":
+      return "image/bmp";
+    case ".ico":
+      return "image/x-icon";
+    case ".tiff":
+    case ".tif":
+      return "image/tiff";
+    case ".avif":
+      return "image/avif";
+    default:
+      return "image/png";
+  }
+}
+
 export class MarkdownRenderer {
   private md: any;
   private alertStack: string[] = [];
@@ -37,6 +126,22 @@ export class MarkdownRenderer {
         );
       },
     });
+
+    // Custom link validator to support file://, vscode-resource:, and data: schemes in markdown images
+    const defaultValidateLink = this.md.validateLink.bind(this.md);
+    this.md.validateLink = (url: string) => {
+      const trimmed = (url || "").trim().toLowerCase();
+      if (
+        trimmed.startsWith("file://") ||
+        trimmed.startsWith("file:/") ||
+        trimmed.startsWith("vscode-resource:") ||
+        trimmed.startsWith("vscode-webview:") ||
+        trimmed.startsWith("data:")
+      ) {
+        return true;
+      }
+      return defaultValidateLink(url);
+    };
 
     this.configurePlugins();
   }
@@ -338,22 +443,23 @@ export class MarkdownRenderer {
     imageCache: Map<string, string>
   ): string {
     return html.replace(
-      /<img\s+([^>]*?)src="([^"]+)"([^>]*?)>/gi,
-      (match, pre, src, post) => {
-        if (/^(https?:|data:|vscode-resource:)/i.test(src)) return match;
-        const decodedSrc = decodeURIComponent(src);
-        const cacheKey = docDir + "|" + decodedSrc;
+      /<img\s+([^>]*?)src=(["'])([^"']+)\2([^>]*?)>/gi,
+      (match, pre, quote, src, post) => {
+        if (/^(https?:|\/\/|data:|vscode-resource:|vscode-webview:)/i.test(src)) return match;
+        
+        const cacheKey = "src|" + docDir + "|" + src;
         if (imageCache.has(cacheKey)) {
-          return `<img ${pre}src="${imageCache.get(cacheKey)}"${post}>`;
+          const cachedUri = imageCache.get(cacheKey)!;
+          return `<img ${pre}src="${cachedUri}"${post}>`;
         }
-        const absolutePath = path.isAbsolute(decodedSrc)
-          ? decodedSrc
-          : path.resolve(docDir, decodedSrc);
-        if (fs.existsSync(absolutePath)) {
+
+        const absolutePath = resolveImagePath(src, docDir);
+        if (absolutePath && fs.existsSync(absolutePath)) {
           const webviewUri = webview
             .asWebviewUri(vscode.Uri.file(absolutePath))
             .toString();
           imageCache.set(cacheKey, webviewUri);
+          imageCache.set(webviewUri, absolutePath); // Store absolute path for webviewUri
           return `<img ${pre}src="${webviewUri}"${post}>`;
         }
         return match;
@@ -430,6 +536,21 @@ export class MarkdownRenderer {
     );
   }
 
+  private normalizeMarkdownImagePaths(markdown: string): string {
+    return markdown.replace(/(!?\[[^\]]*\]\()([^)]+)(\))/g, (match, prefix, dest, suffix) => {
+      let isAngle = false;
+      let cleanDest = dest;
+      if (cleanDest.startsWith("<") && cleanDest.endsWith(">")) {
+        isAngle = true;
+        cleanDest = cleanDest.slice(1, -1);
+      }
+      if (!cleanDest.startsWith("data:")) {
+        cleanDest = cleanDest.replace(/\\/g, "/");
+      }
+      return isAngle ? `${prefix}<${cleanDest}>${suffix}` : `${prefix}${cleanDest}${suffix}`;
+    });
+  }
+
   // --- Main compile interface ---
   public render(
     text: string,
@@ -439,7 +560,8 @@ export class MarkdownRenderer {
   ): string {
     this.currentSlugs.clear();
     const env: any = { slugs: this.currentSlugs };
-    let rendered = this.md.render(text, env);
+    const normalizedText = this.normalizeMarkdownImagePaths(text);
+    let rendered = this.md.render(normalizedText, env);
     rendered = this.resolveLocalImages(rendered, docDir, webview, imageCache);
     rendered = this.resolveYouTubeEmbeds(rendered);
     return rendered;
