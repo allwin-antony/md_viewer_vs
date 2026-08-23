@@ -118,6 +118,10 @@ Customize the preview typography and PDF renderer behavior in your VS Code `sett
 | `mdViewer.preview.fontSize` | `string` | `"14px"` | Custom CSS font size for preview typography. |
 | `mdViewer.preview.lineHeight` | `string` | `"1.7"` | Custom line height for preview typography. |
 | `mdViewer.preview.syncSelection` | `boolean` | `true` | Enable bidirectional selection synchronization between the markdown editor and the preview. |
+| `mdViewer.pdf.pageSize` | `string` | `"A4"` | Target paper size for PDF export (`"A4"`, `"Letter"`, `"Legal"`, `"Tabloid"`, `"A3"`, `"A5"`). |
+| `mdViewer.pdf.orientation` | `string` | `"portrait"` | Page orientation for PDF export (`"portrait"` or `"landscape"`). |
+| `mdViewer.pdf.margins` | `string` | `"normal"` | Page margins for PDF export (`"normal"`: 15mm, `"compact"`: 8mm, `"academic"`: 1 inch, `"none"`: 0mm). |
+| `mdViewer.pdf.headerFooter` | `boolean` | `false` | Display default browser header and footer (page numbering & generation date) in PDF exports. |
 
 ---
 

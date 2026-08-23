@@ -94,10 +94,13 @@ import { generateExportHtml } from "./html";
 export function exportToPdf(
   chromeExecutable: string,
   tempHtmlPath: string,
-  targetPdfPath: string
+  targetPdfPath: string,
+  includeHeaderFooter: boolean = false
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    const chromeCmd = `"${chromeExecutable}" --headless --disable-gpu --no-sandbox --allow-file-access-from-files --enable-local-file-accesses --no-pdf-header-footer --print-to-pdf="${targetPdfPath}" "${tempHtmlPath}"`;
+    const headerFooterFlag = includeHeaderFooter ? "" : "--no-pdf-header-footer";
+    // --virtual-time-budget=2000 & --run-all-compositor-stages-before-draw gives async JS (KaTeX, Mermaid SVGs) time to finish rendering before snapshot
+    const chromeCmd = `"${chromeExecutable}" --headless --disable-gpu --no-sandbox --allow-file-access-from-files --enable-local-file-accesses --run-all-compositor-stages-before-draw --virtual-time-budget=2000 ${headerFooterFlag} --print-to-pdf="${targetPdfPath}" "${tempHtmlPath}"`;
 
     cp.exec(chromeCmd, (error, stdout, stderr) => {
       if (error) {
@@ -141,11 +144,14 @@ export async function exportDocumentToPdf(
   const bodyHtml = renderer.renderHeadless(doc.getText(), docDir, imageCache);
   const fullHtml = generateExportHtml(bodyHtml, docDir, context.extensionPath, imageCache, true);
 
+  const pdfConfig = vscode.workspace.getConfiguration("mdViewer.pdf");
+  const includeHeaderFooter = pdfConfig.get<boolean>("headerFooter", false);
+
   const tempHtmlPath = path.join(docDir, `temp_preview_${Date.now()}.html`);
   try {
     fs.writeFileSync(tempHtmlPath, fullHtml, "utf8");
     const chromeExecutable = findChromePath();
-    await exportToPdf(chromeExecutable, tempHtmlPath, finalPdfPath);
+    await exportToPdf(chromeExecutable, tempHtmlPath, finalPdfPath, includeHeaderFooter);
     vscode.window.showInformationMessage(`PDF successfully exported to: ${path.basename(finalPdfPath)}`);
     return finalPdfPath;
   } catch (err: any) {

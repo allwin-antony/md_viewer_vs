@@ -263,7 +263,9 @@ export class MarkdownPreviewPanel {
     const fileUri = await vscode.window.showSaveDialog(saveOptions);
     if (fileUri) {
       try {
-        await exportToPdf(chromeExecutable, tempHtmlPath, fileUri.fsPath);
+        const pdfConfig = vscode.workspace.getConfiguration("mdViewer.pdf");
+        const includeHeaderFooter = pdfConfig.get<boolean>("headerFooter", false);
+        await exportToPdf(chromeExecutable, tempHtmlPath, fileUri.fsPath, includeHeaderFooter);
         vscode.window.showInformationMessage(`PDF successfully exported to: ${path.basename(fileUri.fsPath)}`);
       } catch (err: any) {
         const isNotFoundError = err.message.includes("ENOENT") || 

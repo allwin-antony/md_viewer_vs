@@ -87,9 +87,19 @@ export function generateExportHtml(
   } catch (e) {}
 
   const config = vscode.workspace.getConfiguration("mdViewer.preview");
-  const fontFamily = config.get<string>("fontFamily") || "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+  const fontFamily = config.get<string>("fontFamily") || "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
   const fontSize = config.get<string>("fontSize") || "14px";
   const lineHeight = config.get<string>("lineHeight") || "1.7";
+
+  const pdfConfig = vscode.workspace.getConfiguration("mdViewer.pdf");
+  const pageSize = pdfConfig.get<string>("pageSize") || "A4";
+  const orientation = pdfConfig.get<string>("orientation") || "portrait";
+  const margins = pdfConfig.get<string>("margins") || "normal";
+
+  let marginValue = "15mm";
+  if (margins === "compact") marginValue = "8mm";
+  else if (margins === "academic") marginValue = "25.4mm";
+  else if (margins === "none") marginValue = "0mm";
 
   let html = `<!DOCTYPE html>
 <html lang="en">
@@ -145,7 +155,11 @@ export function generateExportHtml(
     .alert-caution { border-left-color: #d73a49; background-color: #ffeef0; }
 
     ${forPdf ? `
-    /* PDF Print Styles */
+    /* PDF Print Styles & Page Configuration */
+    @page {
+      size: ${pageSize} ${orientation};
+      margin: ${marginValue};
+    }
     body.pdf-exporting {
       padding: 0 !important;
       max-width: 100% !important;
@@ -172,6 +186,27 @@ export function generateExportHtml(
   <script>${autoRenderJs}</script>
   <script>${mermaidJs}</script>
   <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof renderMathInElement === 'function') {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false}
+          ]
+        });
+      }
+      if (typeof mermaid !== 'undefined') {
+        mermaid.initialize({ startOnLoad: false, theme: 'default', securityLevel: 'loose' });
+        mermaid.run().then(function() {
+          document.body.dataset.rendered = "true";
+        }).catch(function() {
+          document.body.dataset.rendered = "true";
+        });
+      } else {
+        document.body.dataset.rendered = "true";
+      }
+    });
+    // Fallback immediate execution
     if (typeof renderMathInElement === 'function') {
       renderMathInElement(document.body, {
         delimiters: [
@@ -181,7 +216,9 @@ export function generateExportHtml(
       });
     }
     if (typeof mermaid !== 'undefined') {
-      mermaid.initialize({ startOnLoad: true, theme: 'default' });
+      try {
+        mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' });
+      } catch(_) {}
     }
   </script>
 </body>

@@ -35,6 +35,17 @@ export function getWebviewContent(
   const fontSize = config.get<string>("fontSize") || "14px";
   const lineHeight = config.get<string>("lineHeight") || "1.7";
 
+  // Load PDF print customizations
+  const pdfConfig = vscode.workspace.getConfiguration("mdViewer.pdf");
+  const pageSize = pdfConfig.get<string>("pageSize") || "A4";
+  const orientation = pdfConfig.get<string>("orientation") || "portrait";
+  const margins = pdfConfig.get<string>("margins") || "normal";
+
+  let marginValue = "15mm";
+  if (margins === "compact") marginValue = "8mm";
+  else if (margins === "academic") marginValue = "25.4mm";
+  else if (margins === "none") marginValue = "0mm";
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -415,6 +426,10 @@ export function getWebviewContent(
         }
 
         /* Publication-Grade PDF Print Style overrides */
+        @page {
+            size: ${pageSize} ${orientation};
+            margin: ${marginValue};
+        }
         body.pdf-exporting {
             background-color: #ffffff !important;
             color: #1a1a1a !important;

@@ -61,6 +61,29 @@
           "type": "boolean",
           "default": true,
           "description": "Enable bidirectional selection synchronization between the markdown editor and the preview."
+        },
+        "mdViewer.pdf.pageSize": {
+          "type": "string",
+          "enum": ["A4", "Letter", "Legal", "Tabloid", "A3", "A5"],
+          "default": "A4",
+          "description": "Paper size for exported PDF documents."
+        },
+        "mdViewer.pdf.orientation": {
+          "type": "string",
+          "enum": ["portrait", "landscape"],
+          "default": "portrait",
+          "description": "Page orientation for exported PDF documents."
+        },
+        "mdViewer.pdf.margins": {
+          "type": "string",
+          "enum": ["normal", "compact", "academic", "none"],
+          "default": "normal",
+          "description": "Page margins for exported PDF documents (Normal: 15mm, Compact: 8mm, Academic: 1 inch, None: 0)."
+        },
+        "mdViewer.pdf.headerFooter": {
+          "type": "boolean",
+          "default": false,
+          "description": "Include default browser header/footer (page numbers and date) in exported PDF documents."
         }
       }
     },
